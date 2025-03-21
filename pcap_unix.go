@@ -47,7 +47,7 @@ import (
 #ifndef PCAP_ERROR_TSTAMP_PRECISION_NOTSUP  // < v1.5
 #define PCAP_ERROR_TSTAMP_PRECISION_NOTSUP -12
 
-int pcap_set_immediate_mode(pcap_t *p, int mode) {
+int yaklang_pcap_set_immediate_mode(pcap_t *p, int mode) {
   return PCAP_ERROR;
 }
 
@@ -64,63 +64,63 @@ int pcap_set_immediate_mode(pcap_t *p, int mode) {
 #define PCAP_TSTAMP_PRECISION_MICRO	0
 #define PCAP_TSTAMP_PRECISION_NANO	1
 
-pcap_t *pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision,
+pcap_t *yaklang_pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision,
   char *errbuf) {
   return pcap_open_offline(fname, errbuf);
 }
 
-pcap_t *pcap_fopen_offline_with_tstamp_precision(FILE *fp, u_int precision,
+pcap_t *yaklang_pcap_fopen_offline_with_tstamp_precision(FILE *fp, u_int precision,
   char *errbuf) {
   return pcap_fopen_offline(fp, errbuf);
 }
 
-int pcap_set_tstamp_precision(pcap_t *p, int tstamp_precision) {
+int yaklang_pcap_set_tstamp_precision(pcap_t *p, int tstamp_precision) {
   if (tstamp_precision == PCAP_TSTAMP_PRECISION_MICRO)
     return 0;
   return PCAP_ERROR_TSTAMP_PRECISION_NOTSUP;
 }
 
-int pcap_get_tstamp_precision(pcap_t *p) {
+int yaklang_pcap_get_tstamp_precision(pcap_t *p) {
   return PCAP_TSTAMP_PRECISION_MICRO;
 }
 
 #ifndef PCAP_TSTAMP_HOST  // < v1.2
 
-int pcap_set_tstamp_type(pcap_t* p, int t) { return -1; }
-int pcap_list_tstamp_types(pcap_t* p, int** t) { return 0; }
-void pcap_free_tstamp_types(int *tstamp_types) {}
+int yaklang_pcap_set_tstamp_type(pcap_t* p, int t) { return -1; }
+int yaklang_pcap_list_tstamp_types(pcap_t* p, int** t) { return 0; }
+void yaklang_pcap_free_tstamp_types(int *tstamp_types) {}
 const char* pcap_tstamp_type_val_to_name(int t) {
 	return "pcap timestamp types not supported";
 }
-int pcap_tstamp_type_name_to_val(const char* t) {
+int yaklang_pcap_tstamp_type_name_to_val(const char* t) {
 	return PCAP_ERROR;
 }
 
 #endif  // < v1.2
 #endif  // < v1.5
 
-#ifndef PCAP_ERROR_PROMISC_PERM_DENIED
-#define PCAP_ERROR_PROMISC_PERM_DENIED -11
+#ifndef yaklang_PCAP_ERROR_PROMISC_PERM_DENIED
+#define yaklang_PCAP_ERROR_PROMISC_PERM_DENIED -11
 #endif
 
 // Windows, Macs, and Linux all use different time types.  Joy.
 #ifdef __APPLE__
-#define gopacket_time_secs_t __darwin_time_t
-#define gopacket_time_usecs_t __darwin_suseconds_t
+#define yaklang_gopacket_time_secs_t __darwin_time_t
+#define yaklang_gopacket_time_usecs_t __darwin_suseconds_t
 #elif __ANDROID__
-#define gopacket_time_secs_t __kernel_time_t
-#define gopacket_time_usecs_t __kernel_suseconds_t
+#define yaklang_gopacket_time_secs_t __kernel_time_t
+#define yaklang_gopacket_time_usecs_t __kernel_suseconds_t
 #elif __GLIBC__
-#define gopacket_time_secs_t __time_t
-#define gopacket_time_usecs_t __suseconds_t
+#define yaklang_gopacket_time_secs_t __time_t
+#define yaklang_gopacket_time_usecs_t __suseconds_t
 #else  // Some form of linux/bsd/etc...
 #include <sys/param.h>
 #ifdef __OpenBSD__
-#define gopacket_time_secs_t u_int32_t
-#define gopacket_time_usecs_t u_int32_t
+#define yaklang_gopacket_time_secs_t u_int32_t
+#define yaklang_gopacket_time_usecs_t u_int32_t
 #else
-#define gopacket_time_secs_t time_t
-#define gopacket_time_usecs_t suseconds_t
+#define yaklang_gopacket_time_secs_t time_t
+#define yaklang_gopacket_time_usecs_t suseconds_t
 #endif
 #endif
 
@@ -128,7 +128,7 @@ int pcap_tstamp_type_name_to_val(const char* t) {
 // According to https://github.com/the-tcpdump-group/libpcap/blob/1131a7c26c6f4d4772e4a2beeaf7212f4dea74ac/pcap.c#L398-L406 ,
 // the return value of pcap_next_ex could be greater than 1 for success.
 // Let's just make it 1 if it comes bigger than 1.
-int pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
+int yanklang_pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
   int ex = pcap_next_ex(p, (struct pcap_pkthdr**)(pkt_hdr), (const u_char**)(pkt_data));
   if (ex > 1) {
     ex = 1;
@@ -136,13 +136,13 @@ int pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
   return ex;
 }
 
-int pcap_offline_filter_escaping(struct bpf_program *fp, uintptr_t pkt_hdr, uintptr_t pkt) {
+int yanklang_pcap_offline_filter_escaping(struct bpf_program *fp, uintptr_t pkt_hdr, uintptr_t pkt) {
 	return pcap_offline_filter(fp, (struct pcap_pkthdr*)(pkt_hdr), (const u_char*)(pkt));
 }
 
-// pcap_wait returns when the next packet is available or the timeout expires.
+// yanklang_pcap_wait returns when the next packet is available or the timeout expires.
 // Since it uses pcap_get_selectable_fd, it will not work in Windows.
-int pcap_wait(pcap_t *p, int msec) {
+int yanklang_pcap_wait(pcap_t *p, int msec) {
 	struct pollfd fds[1];
 	int fd;
 
@@ -205,11 +205,11 @@ func (h *pcapPkthdr) getCaplen() int {
 }
 
 func pcapGetTstampPrecision(cptr pcapTPtr) int {
-	return int(C.pcap_get_tstamp_precision(cptr))
+	return int(C.yaklang_pcap_get_tstamp_precision(cptr))
 }
 
 func pcapSetTstampPrecision(cptr pcapTPtr, precision int) error {
-	ret := C.pcap_set_tstamp_precision(cptr, C.int(precision))
+	ret := C.yaklang_pcap_set_tstamp_precision(cptr, C.int(precision))
 	if ret < 0 {
 		return errors.New(C.GoString(C.pcap_geterr(cptr)))
 	}
@@ -240,7 +240,7 @@ func openOffline(file string) (handle *Handle, err error) {
 	cf := C.CString(file)
 	defer C.free(unsafe.Pointer(cf))
 
-	cptr := C.pcap_open_offline_with_tstamp_precision(cf, C.PCAP_TSTAMP_PRECISION_NANO, buf)
+	cptr := C.yaklang_pcap_open_offline_with_tstamp_precision(cf, C.PCAP_TSTAMP_PRECISION_NANO, buf)
 	if cptr == nil {
 		return nil, errors.New(C.GoString(buf))
 	}
@@ -340,12 +340,12 @@ func pcapLookupnet(device string) (netp, maskp uint32, err error) {
 
 func (b *BPF) pcapOfflineFilter(ci gopacket.CaptureInfo, data []byte) bool {
 	hdr := (*C.struct_pcap_pkthdr)(&b.hdr)
-	hdr.ts.tv_sec = C.gopacket_time_secs_t(ci.Timestamp.Unix())
-	hdr.ts.tv_usec = C.gopacket_time_usecs_t(ci.Timestamp.Nanosecond() / 1000)
+	hdr.ts.tv_sec = C.yaklang_gopacket_time_secs_t(ci.Timestamp.Unix())
+	hdr.ts.tv_usec = C.yaklang_gopacket_time_usecs_t(ci.Timestamp.Nanosecond() / 1000)
 	hdr.caplen = C.bpf_u_int32(len(data)) // Trust actual length over ci.Length.
 	hdr.len = C.bpf_u_int32(ci.Length)
 	dataptr := (*C.u_char)(unsafe.Pointer(&data[0]))
-	return C.pcap_offline_filter_escaping((*C.struct_bpf_program)(&b.bpf.bpf),
+	return C.yanklang_pcap_offline_filter_escaping((*C.struct_bpf_program)(&b.bpf.bpf),
 		C.uintptr_t(uintptr(unsafe.Pointer(hdr))),
 		C.uintptr_t(uintptr(unsafe.Pointer(dataptr)))) != 0
 }
@@ -394,7 +394,7 @@ func (p *Handle) pcapNextPacketEx() NextError {
 	// Since Handle itself survives through the duration of the pcap_next_ex
 	// call, this should be perfectly safe for GC stuff, etc.
 
-	return NextError(C.pcap_next_ex_escaping(p.cptr, C.uintptr_t(uintptr(unsafe.Pointer(&p.pkthdr))), C.uintptr_t(uintptr(unsafe.Pointer(&p.bufptr)))))
+	return NextError(C.yanklang_pcap_next_ex_escaping(p.cptr, C.uintptr_t(uintptr(unsafe.Pointer(&p.pkthdr))), C.uintptr_t(uintptr(unsafe.Pointer(&p.bufptr)))))
 }
 
 func (p *Handle) pcapDatalink() layers.LinkType {
@@ -541,7 +541,7 @@ func (t TimestampSource) pcapTstampTypeValToName() string {
 func pcapTstampTypeNameToVal(s string) (TimestampSource, error) {
 	cs := C.CString(s)
 	defer C.free(unsafe.Pointer(cs))
-	t := C.pcap_tstamp_type_name_to_val(cs)
+	t := C.yaklang_pcap_tstamp_type_name_to_val(cs)
 	if t < 0 {
 		return 0, statusError(t)
 	}
@@ -610,11 +610,11 @@ func (p *InactiveHandle) pcapSetTimeout(timeout time.Duration) error {
 
 func (p *InactiveHandle) pcapListTstampTypes() (out []TimestampSource) {
 	var types *C.int
-	n := int(C.pcap_list_tstamp_types(p.cptr, &types))
+	n := int(C.yaklang_pcap_list_tstamp_types(p.cptr, &types))
 	if n < 0 {
 		return // public interface doesn't have error :(
 	}
-	defer C.pcap_free_tstamp_types(types)
+	defer C.yaklang_pcap_free_tstamp_types(types)
 	typesArray := (*[1 << 28]C.int)(unsafe.Pointer(types))
 	for i := 0; i < n; i++ {
 		out = append(out, TimestampSource((*typesArray)[i]))
@@ -623,7 +623,7 @@ func (p *InactiveHandle) pcapListTstampTypes() (out []TimestampSource) {
 }
 
 func (p *InactiveHandle) pcapSetTstampType(t TimestampSource) error {
-	if status := C.pcap_set_tstamp_type(p.cptr, C.int(t)); status < 0 {
+	if status := C.yaklang_pcap_set_tstamp_type(p.cptr, C.int(t)); status < 0 {
 		return statusError(status)
 	}
 	return nil
@@ -660,7 +660,7 @@ func (p *InactiveHandle) pcapSetImmediateMode(mode bool) error {
 	if mode {
 		md = 1
 	}
-	if status := C.pcap_set_immediate_mode(p.cptr, md); status < 0 {
+	if status := C.yaklang_pcap_set_immediate_mode(p.cptr, md); status < 0 {
 		return statusError(status)
 	}
 	return nil
@@ -670,7 +670,7 @@ func (p *Handle) setNonBlocking() error {
 	buf := (*C.char)(C.calloc(errorBufferSize, 1))
 	defer C.free(unsafe.Pointer(buf))
 
-	// Change the device to non-blocking, we'll use pcap_wait to wait until the
+	// Change the device to non-blocking, we'll use yanklang_pcap_wait to wait until the
 	// handle is ready to read.
 	if v := C.pcap_setnonblock(p.cptr, 1, buf); v < -1 {
 		return errors.New(C.GoString(buf))
@@ -687,7 +687,7 @@ func (p *Handle) waitForPacket() {
 	// so the call must have a timeout less than *or equal* to the packet buffer timeout.
 	// The packet buffer timeout is set to timeoutMillis(p.timeout) in pcapOpenLive(),
 	// so we should be fine to use it here too.
-	C.pcap_wait(p.cptr, C.int(timeoutMillis(p.timeout)))
+	C.yanklang_pcap_wait(p.cptr, C.int(timeoutMillis(p.timeout)))
 }
 
 // openOfflineFile returns contents of input file as a *Handle.
@@ -698,7 +698,7 @@ func openOfflineFile(file *os.File) (handle *Handle, err error) {
 	defer C.free(unsafe.Pointer(cmode))
 	cf := C.fdopen(C.int(file.Fd()), cmode)
 
-	cptr := C.pcap_fopen_offline_with_tstamp_precision(cf, C.PCAP_TSTAMP_PRECISION_NANO, buf)
+	cptr := C.yaklang_pcap_fopen_offline_with_tstamp_precision(cf, C.PCAP_TSTAMP_PRECISION_NANO, buf)
 	if cptr == nil {
 		return nil, errors.New(C.GoString(buf))
 	}
