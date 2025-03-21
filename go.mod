@@ -1,4 +1,4 @@
-module github.com/yaklang/pcap
+module github.com/GoldenSheep402/pcap
 
 go 1.22.0
 
