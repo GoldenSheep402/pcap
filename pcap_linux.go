@@ -128,7 +128,7 @@ int pcap_tstamp_type_name_to_val(const char* t) {
 // According to https://github.com/the-tcpdump-group/libpcap/blob/1131a7c26c6f4d4772e4a2beeaf7212f4dea74ac/pcap.c#L398-L406 ,
 // the return value of pcap_next_ex could be greater than 1 for success.
 // Let's just make it 1 if it comes bigger than 1.
-int pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
+int yaklang_pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
   int ex = pcap_next_ex(p, (struct pcap_pkthdr**)(pkt_hdr), (const u_char**)(pkt_data));
   if (ex > 1) {
     ex = 1;
@@ -136,13 +136,13 @@ int pcap_next_ex_escaping(pcap_t *p, uintptr_t pkt_hdr, uintptr_t pkt_data) {
   return ex;
 }
 
-int pcap_offline_filter_escaping(struct bpf_program *fp, uintptr_t pkt_hdr, uintptr_t pkt) {
+int yaklang_pcap_offline_filter_escaping(struct bpf_program *fp, uintptr_t pkt_hdr, uintptr_t pkt) {
 	return pcap_offline_filter(fp, (struct pcap_pkthdr*)(pkt_hdr), (const u_char*)(pkt));
 }
 
-// pcap_wait returns when the next packet is available or the timeout expires.
+// yaklang_pcap_wait returns when the next packet is available or the timeout expires.
 // Since it uses pcap_get_selectable_fd, it will not work in Windows.
-int pcap_wait(pcap_t *p, int msec) {
+int yaklang_pcap_wait(pcap_t *p, int msec) {
 	struct pollfd fds[1];
 	int fd;
 
@@ -347,7 +347,7 @@ func (b *BPF) pcapOfflineFilter(ci gopacket.CaptureInfo, data []byte) bool {
 	hdr.caplen = C.bpf_u_int32(len(data)) // Trust actual length over ci.Length.
 	hdr.len = C.bpf_u_int32(ci.Length)
 	dataptr := (*C.u_char)(unsafe.Pointer(&data[0]))
-	return C.pcap_offline_filter_escaping((*C.struct_bpf_program)(&b.bpf.bpf),
+	return C.yaklang_pcap_offline_filter_escaping((*C.struct_bpf_program)(&b.bpf.bpf),
 		C.uintptr_t(uintptr(unsafe.Pointer(hdr))),
 		C.uintptr_t(uintptr(unsafe.Pointer(dataptr)))) != 0
 }
@@ -396,7 +396,7 @@ func (p *Handle) pcapNextPacketEx() NextError {
 	// Since Handle itself survives through the duration of the pcap_next_ex
 	// call, this should be perfectly safe for GC stuff, etc.
 
-	return NextError(C.pcap_next_ex_escaping(p.cptr, C.uintptr_t(uintptr(unsafe.Pointer(&p.pkthdr))), C.uintptr_t(uintptr(unsafe.Pointer(&p.bufptr)))))
+	return NextError(C.yaklang_pcap_next_ex_escaping(p.cptr, C.uintptr_t(uintptr(unsafe.Pointer(&p.pkthdr))), C.uintptr_t(uintptr(unsafe.Pointer(&p.bufptr)))))
 }
 
 func (p *Handle) pcapDatalink() layers.LinkType {
@@ -672,7 +672,7 @@ func (p *Handle) setNonBlocking() error {
 	buf := (*C.char)(C.calloc(errorBufferSize, 1))
 	defer C.free(unsafe.Pointer(buf))
 
-	// Change the device to non-blocking, we'll use pcap_wait to wait until the
+	// Change the device to non-blocking, we'll use yaklang_pcap_wait to wait until the
 	// handle is ready to read.
 	if v := C.pcap_setnonblock(p.cptr, 1, buf); v < -1 {
 		return errors.New(C.GoString(buf))
@@ -689,7 +689,7 @@ func (p *Handle) waitForPacket() {
 	// so the call must have a timeout less than *or equal* to the packet buffer timeout.
 	// The packet buffer timeout is set to timeoutMillis(p.timeout) in pcapOpenLive(),
 	// so we should be fine to use it here too.
-	C.pcap_wait(p.cptr, C.int(timeoutMillis(p.timeout)))
+	C.yaklang_pcap_wait(p.cptr, C.int(timeoutMillis(p.timeout)))
 }
 
 // openOfflineFile returns contents of input file as a *Handle.
