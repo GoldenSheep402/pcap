@@ -7,6 +7,7 @@ toolchain go1.22.8
 require (
 	github.com/gopacket/gopacket v1.3.1
 	github.com/urfave/cli v1.22.15
+	github.com/yaklang/pcap v1.0.5
 	golang.org/x/sys v0.24.0
 )
 
