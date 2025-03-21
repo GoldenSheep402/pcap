@@ -28,7 +28,7 @@ import (
 #cgo freebsd LDFLAGS: -lpcap
 #cgo openbsd LDFLAGS: -lpcap
 #cgo netbsd LDFLAGS: -lpcap
-#cgo darwin LDFLAGS: -lpcap
+#cgo darwin LDFLAGS: -lpcap -static
 #include <stdlib.h>
 #include <pcap.h>
 #include <stdint.h>
